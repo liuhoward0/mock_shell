@@ -12,3 +12,6 @@ main.o: main.c
 
 clean: 
 	rm main.o main
+
+valgrind:
+	valgrind --leak-check=full ./main
