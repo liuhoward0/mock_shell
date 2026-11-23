@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+void freeVector(char **);
 char** whitespaceDelimiter(char *string);
 
 int main() {
 
-	char **vector;
+	char **vector = malloc(sizeof(char *));
+	vector[0] = NULL;
 	char buffer[1001];
 	int counter = 0;
 
@@ -15,18 +17,34 @@ int main() {
 		counter = 0;
 		printf("> ");
 		fgets(buffer, 1000, stdin);
+		freeVector(vector);
 		vector = whitespaceDelimiter(buffer);
+
+		//debugging loop
 		while (vector[counter] != NULL) {
 			printf("%s\n", vector[counter]);
 			counter++;
 		}
+
 		if (vector[0] != NULL && strcmp(vector[0], "clear") == 0) {
 			printf("\033[2J\033[H");
 		}
+
 	} while (vector[0] == NULL || strcmp(vector[0], "exit") != 0);
 	printf("Program exited, have a nice day\n");
 
+	free(vector);
+
 	return 0;
+}
+
+void freeVector(char ** vector) {
+	int i = 0;
+	while (vector[i] != NULL) {
+		free(vector[i]);
+		i++;
+	}
+	free(vector);
 }
 
 char** whitespaceDelimiter(char *string) {
@@ -90,7 +108,11 @@ char** whitespaceDelimiter(char *string) {
 					argc++;
 				} else if (isspace(string[i])) {
 					state = BLANK_STATE;
-					//realloc here
+					// reallocate for space if needed
+					if (argc == capacity) {
+						capacity *= 2;
+						returner = realloc(returner, sizeof(char *) * capacity);
+					}
 					*(returner + argc) = strndup(string + substrStartMarker, substrlen);
 					argc++;
 				} else {
